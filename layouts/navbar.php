@@ -10,9 +10,9 @@
 
   <!-- Navigation Menu -->
   <ul class="flex space-x-8">
-    <li><a href="#" class="font-semibold text-black hover:text-blue-600">Home</a></li>
-    <li><a href="#" class="font-semibold text-black hover:text-blue-600">About Us</a></li>
-    <li><a href="#" class="font-semibold text-black hover:text-blue-600">Contact</a></li>
+    <li><a href="#home" class="font-semibold text-black hover:text-blue-600">Home</a></li>
+    <li><a href="#about-us" class="font-semibold text-black hover:text-blue-600">About Us</a></li>
+    <li><a href="#contact-us" class="font-semibold text-black hover:text-blue-600">Contact</a></li>
   </ul>
 
   <!-- Login Button -->
