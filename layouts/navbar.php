@@ -1,4 +1,4 @@
-<nav class="flex items-center justify-between px-8 py-4 shadow">
+<nav class="flex items-center justify-between px-8 py-4 shadow sticky top-0 z-50 bg-white">
   <!-- Logo -->
   <div class="flex items-center space-x-2">
     <img src="src/assets/images/logo-baraya-well.png" alt="Logo" class="h-8">
@@ -17,6 +17,6 @@
 
   <!-- Login Button -->
   <div>
-    <a href="#" class="font-bold text-black hover:text-blue-600">Login</a>
+    <a href="login.php" class="font-bold text-black hover:text-blue-600">Login</a>
   </div>
 </nav>
