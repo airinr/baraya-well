@@ -28,7 +28,6 @@
             <div class="mb-8">
                 <div class="flex justify-between items-center mb-2">
                     <h3 class="font-semibold text-gray-700">Data Pemasukan</h3>
-                    <button class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">+ Tambah</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full border border-gray-200 text-sm">
