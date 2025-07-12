@@ -2,25 +2,26 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin RT</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Baraya Well</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 font-sans">
+<body class="bg-white font-sans">
 
-    <!-- Header -->
-    <?php include '../../layouts/header-rt.php' ?>
+    <!-- Navbar -->
+    <?php include '../../layouts/navbar.php' ?>
 
-    <!-- Main Layout -->
-    <div class="flex max-w-7xl mx-auto mt-6">
+    <main class="flex min-h-screen">
 
-        <!-- side bar -->
+        <!-- Sidebar -->
         <?php include '../../layouts/sidebar-rt.php' ?>
 
-        <!-- Konten -->
-        <main class="flex-1 bg-white p-6 rounded-lg shadow-md">
+        <!-- Konten Utama -->
+        <section class="flex-1 p-10 space-y-6">
+
+            <!-- Total Saldo -->
             <?php include '../../layouts/saldo-rt.php' ?>
 
             <!-- Tabel Pengeluaran -->
@@ -33,32 +34,34 @@
                     <table class="w-full border border-gray-200 text-sm">
                         <thead class="bg-gray-200">
                             <tr>
-                                <th class="p-2 border w-[160px]">No Rumah</th>
-                                <th class="p-2 border">Nama</th>
-                                <th class="p-2 border text-center w-[160px]">Aksi</th>
+                                <th class="p-2 border">No Rumah</th>
+                                <th class="p-2 border">Nama Kepala Keluarga</th>
+                                <th class="p-2 border">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td class="p-2 border">002</td>
                                 <td class="p-2 border">Airin Ristiana</td>
-                                <td class="p-2 border text-center">
+                                <td class="p-2 border">
                                     <div class="flex justify-center items-center space-x-2">
                                         <!-- Tombol Update -->
                                         <a href="#" class="bg-yellow-400 text-white px-2 py-1 rounded text-xs hover:bg-yellow-500">Update</a>
                                         <!-- Tombol Delete -->
                                         <a href="#" onclick="return confirm('Yakin ingin menghapus data ini?')" class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Delete</a>
                                     </div>
+
                                 </td>
                             </tr>
+                            <!-- Tambahkan data lain di sini -->
                         </tbody>
-
                     </table>
                 </div>
             </div>
-        </main>
-    </div>
 
+
+        </section>
+    </main>
 </body>
 
 </html>

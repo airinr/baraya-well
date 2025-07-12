@@ -1,62 +1,59 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin RT</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Baraya Well</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body class="bg-white font-sans">
 
-<body class="bg-gray-100 font-sans">
+  <!-- Navbar -->
+  <?php include '../../layouts/navbar.php' ?>
 
-    <!-- Header -->
-    <?php include '../../layouts/header-rt.php' ?>
+  <main class="flex min-h-screen">
 
-    <!-- Main Layout -->
-    <div class="flex max-w-7xl mx-auto mt-6">
+    <!-- Sidebar -->
+    <?php include '../../layouts/sidebar-rt.php' ?>
 
-        <!-- side bar -->
-        <?php include '../../layouts/sidebar-rt.php' ?>
+    <!-- Konten Utama -->
+    <section class="flex-1 p-10 space-y-6">
+      
+      <!-- Total Saldo -->
+      <?php include '../../layouts/saldo-rt.php' ?>
 
-        <!-- Konten -->
-        <main class="flex-1 bg-white p-6 rounded-lg shadow-md">
-            <!-- Saldo -->
-              <?php include '../../layouts/saldo-rt.php' ?>
-
-            <!-- Tabel Pemasukan -->
-            <div class="mb-8">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-semibold text-gray-700">Data Pemasukan</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full border border-gray-200 text-sm">
-                        <thead class="bg-gray-200">
-                            <tr>
-                                <th class="p-2 border">Tanggal</th>
-                                <th class="p-2 border">Nama Warga</th>
-                                <th class="p-2 border">Jumlah</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="p-2 border">01 Juli 2025</td>
-                                <td class="p-2 border">Airin Ristiana</td>
-                                <td class="p-2 border">Rp 500.000</td>
-                            </tr>
-                            <!-- Tambahkan data lain di sini -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
+      <!-- Tabel Pemasukan -->
+      <div class="mb-8">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="font-semibold text-gray-700">Data Pemasukan</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full border border-gray-200 text-sm">
+            <thead class="bg-gray-200">
+              <tr>
+                <th class="p-2 border">Tanggal</th>
+                <th class="p-2 border">Nama Warga</th>
+                <th class="p-2 border">Jumlah</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="p-2 border">01 Juli 2025</td>
+                <td class="p-2 border">Airin Ristiana</td>
+                <td class="p-2 border">Rp 500.000</td>
+              </tr>
+              <!-- Tambahkan data lain di sini -->
             </tbody>
-            </table>
-    </div>
-    </div>
-    </main>
-    </div>
+          </table>
+        </div>
+      </div>
 
+
+        </div>
+      </div>
+
+
+    </section>
+  </main>
 </body>
-
 </html>

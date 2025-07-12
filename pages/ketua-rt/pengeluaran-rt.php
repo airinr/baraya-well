@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Admin RT</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Baraya Well</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-white font-sans">
 
-  <!-- Header -->
-  <?php include '../../layouts/header-rt.php' ?>
+  <!-- Navbar -->
+  <?php include '../../layouts/navbar.php' ?>
 
-  <!-- Main Layout -->
-  <div class="flex max-w-7xl mx-auto mt-6">
+  <main class="flex min-h-screen">
 
-    <!-- side bar -->
-     <?php include '../../layouts/sidebar-rt.php' ?>
+    <!-- Sidebar -->
+    <?php include '../../layouts/sidebar-rt.php' ?>
 
-    <!-- Konten -->
-    <main class="flex-1 bg-white p-6 rounded-lg shadow-md">
+    <!-- Konten Utama -->
+    <section class="flex-1 p-10 space-y-6">
+      
+      <!-- Total Saldo -->
       <?php include '../../layouts/saldo-rt.php' ?>
 
-      <!-- Tabel Pengeluaran -->
+     <!-- Tabel Pengeluaran -->
       <div>
         <div class="flex justify-between items-center mb-2">
           <h3 class="font-semibold text-gray-700">Data Pengeluaran</h3>
@@ -47,8 +48,9 @@
           </table>
         </div>
       </div>
-    </main>
-  </div>
 
+
+    </section>
+  </main>
 </body>
 </html>
