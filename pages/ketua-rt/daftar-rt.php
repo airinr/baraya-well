@@ -13,7 +13,7 @@
     <div class="bg-[#F3EEC0] rounded-xl p-10 w-[350px] md:w-[400px]">
         <h1 class="text-center text-2xl font-bold mb-8">REGISTER RT</h1>
 
-        <form action="../../services/ketua-rt-database/ketua-rt.php" method="POST">
+        <form action="../../services/ketua-rt-database/ketua-rt.php?aksi=register" method="POST">
             <!-- Nama -->
             <div class="mb-4 flex items-center">
                 <label for="nama" class="w-24 text-sm font-medium text-gray-700" >Nama</label>

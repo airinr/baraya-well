@@ -1,11 +1,19 @@
+<?php
+include '../../services/ketua-rt-database/ketua-rt.php';
+
+$pemasukan = getPemasukan();
+?>
+
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard Baraya Well</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-white font-sans">
 
   <!-- Navbar -->
@@ -18,7 +26,7 @@
 
     <!-- Konten Utama -->
     <section class="flex-1 p-10 space-y-6">
-      
+
       <!-- Total Saldo -->
       <?php include '../../layouts/saldo-rt.php' ?>
 
@@ -37,23 +45,31 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="p-2 border">01 Juli 2025</td>
-                <td class="p-2 border">Airin Ristiana</td>
-                <td class="p-2 border">Rp 500.000</td>
-              </tr>
-              <!-- Tambahkan data lain di sini -->
+              <?php if ($pemasukan && $pemasukan->num_rows > 0): ?>
+                <?php while ($row = $pemasukan->fetch_assoc()): ?>
+                  <tr>
+                    <td class="p-2 border"><?= $row['tglPembayaran'] ?></td>
+                    <td class="p-2 border"><?= htmlspecialchars($row['nama']) ?></td>
+                    <td class="p-2 border">Rp<?= $row['totalBayar'] ?></td> <!-- contoh dummy -->
+                  </tr>
+                <?php endwhile; ?>
+              <?php else: ?>
+                <tr>
+                  <td colspan="3" class="text-center p-4">Tidak ada data pemasukan.</td>
+                </tr>
+              <?php endif; ?>
             </tbody>
           </table>
         </div>
       </div>
 
 
-        </div>
+      </div>
       </div>
 
 
     </section>
   </main>
 </body>
+
 </html>

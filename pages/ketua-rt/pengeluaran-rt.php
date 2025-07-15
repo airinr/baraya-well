@@ -1,3 +1,9 @@
+<?php
+include '../../services/ketua-rt-database/ketua-rt.php';
+
+$pengeluaran = getPengeluaran();
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -38,12 +44,19 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="p-2 border">02 Juli 2025</td>
-                <td class="p-2 border">Perbaikan Jalan</td>
-                <td class="p-2 border">Rp 300.000</td>
-              </tr>
-              <!-- Tambahkan data lain di sini -->
+               <?php if ($pengeluaran && $pengeluaran->num_rows > 0): ?>
+                <?php while ($row = $pengeluaran->fetch_assoc()): ?>
+                  <tr>
+                    <td class="p-2 border"><?= $row['tglPengeluaran'] ?></td>
+                    <td class="p-2 border"><?= htmlspecialchars($row['kategori']) ?></td>
+                    <td class="p-2 border">Rp<?= $row['nominal'] ?></td> <!-- contoh dummy -->
+                  </tr>
+                <?php endwhile; ?>
+              <?php else: ?>
+                <tr>
+                  <td colspan="3" class="text-center p-4">Tidak ada data pemasukan.</td>
+                </tr>
+              <?php endif; ?>
             </tbody>
           </table>
         </div>
