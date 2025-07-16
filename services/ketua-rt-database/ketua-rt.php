@@ -68,7 +68,7 @@ function getPemasukan()
 function getPengeluaran()
 {
     global $conn;
-    $query = "SELECT * FROM pembayaran, warga WHERE pembayaran.idWarga = warga.idWarga";
+    $query = "SELECT * FROM pengeluaran, kategori WHERE pengeluaran.idKategori = kategori.idKategori";
     return $conn->query($query);
 }
 
@@ -91,6 +91,7 @@ function getTotalPemasukan()
         return 0;
     }
 }
+
 
 function insertWarga()
 {
@@ -184,7 +185,8 @@ function updateWarga()
     }
 }
 
-function hapusWarga() {
+function hapusWarga()
+{
     global $conn;
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['noRumah'])) {
         $noRumah = mysqli_real_escape_string($conn, $_POST['noRumah']);
@@ -200,7 +202,47 @@ function hapusWarga() {
     }
 }
 
+function pengeluaranRt($idRt)
+{
+    global $conn;
 
+    // 1. Ambil total pemasukan dari RT
+    $sqlPemasukan = "SELECT SUM(totalBayar) AS total FROM pembayaran, warga, rt WHERE pembayaran.idWarga = warga.idWarga AND warga.idRt = rt.idRt AND rt.idRt = '$idRt'";
+    $result = $conn->query($sqlPemasukan);
+    $totalPemasukan = $result->fetch_assoc()['total'];
+
+    // 2. Ambil semua kategori pengeluaran dan persentasenya
+    $sqlKategori = "SELECT idKategori, persentase FROM kategori";
+    $kategoriResult = $conn->query($sqlKategori);
+
+    // 3. Masukkan ke pengeluaran berdasarkan persentase
+    while ($row = $kategoriResult->fetch_assoc()) {
+        $idKategori = $row['idKategori'];
+        $persen = $row['persentase'];
+        $jumlah = ($persen / 100) * $totalPemasukan;
+        $tanggal = date('Y-m-d');
+
+        // 4. Cek apakah sudah pernah dimasukkan sebelumnya
+        $check = $conn->query("SELECT * FROM pengeluaran WHERE idKategori = '$idKategori' AND tglPengeluaran = '$tanggal'");
+        if ($check->num_rows == 0) {
+            $conn->query("INSERT INTO pengeluaran (idKategori, tglPengeluaran, nominal) 
+                          VALUES ('$idKategori', '$tanggal', '$jumlah')");
+        }
+    }
+}
+
+function getTotalPengeluaran()
+{
+     global $conn;
+    $query = "SELECT SUM(nominal) AS total FROM pengeluaran";
+    $result = $conn->query($query);
+
+    if ($result && $row = $result->fetch_assoc()) {
+        return (int) ($row['total'] ?? 0); // Casting ke integer
+    } else {
+        return 0;
+    }
+}
 
 
 
@@ -213,7 +255,7 @@ if (isset($_GET['aksi'])) {
         insertWarga();
     } elseif ($aksi == "edit_warga") {
         updateWarga();
-    }elseif ($aksi == "hapus_warga") {
+    } elseif ($aksi == "hapus_warga") {
         hapusWarga();
     } else {
         echo "Fungsi '$aksi' tidak dikenali.";

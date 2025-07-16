@@ -1,8 +1,15 @@
 <?php
 include '../../services/ketua-rt-database/ketua-rt.php';
 
+// Panggil fungsi pengeluaran berbasis persentase berdasarkan id RT
+// $idRt = $_SESSION['idRt']; // pastikan sudah login & session tersedia
+$idRt = "R001";
+pengeluaranRt($idRt);
+
+// Kemudian ambil pengeluaran
 $pengeluaran = getPengeluaran();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="id">
@@ -34,7 +41,9 @@ $pengeluaran = getPengeluaran();
       <div>
         <div class="flex justify-between items-center mb-2">
           <h3 class="font-semibold text-gray-700">Data Pengeluaran</h3>
-          <button onclick="document.getElementById('popup-pengeluaran').classList.remove('hidden')" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">+ Tambah</button>
+          <button onclick="document.getElementById('popup-pengeluaran').classList.remove('hidden')" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">+ Tambah Pengeluaran</button>
+          <button onclick="document.getElementById('popup-kategori').classList.remove('hidden')" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">+ Tambah Kategori</button>
+
         </div>
         <div class="overflow-x-auto">
           <table class="w-full border border-gray-200 text-sm">
@@ -93,6 +102,25 @@ $pengeluaran = getPengeluaran();
 
         <button type="submit" class="w-full bg-[#3674B5] text-white font-semibold py-2 rounded-md hover:bg-blue-700 transition duration-200">
           Tambah
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- POPUP TAMBAH KATEGORI -->
+  <div id="popup-kategori" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div class="bg-[#E7FFF1] rounded-xl shadow-lg p-8 w-[350px] border-2 border-green-500 relative">
+
+      <button onclick="document.getElementById('popup-kategori').classList.add('hidden')" class="absolute top-2 right-3 text-gray-700 text-xl">&times;</button>
+
+      <h2 class="text-2xl font-bold text-center mb-6 text-green-700">Tambah Kategori</h2>
+
+      <form method="POST" action="<!-- sesuaikan ke controller PHP kamu -->">
+        <label class="block mb-2 font-medium text-gray-700">Nama Kategori</label>
+        <input type="text" name="namaKategori" placeholder="Contoh: Kebersihan" required class="w-full mb-4 border-b border-black bg-transparent focus:outline-none py-1">
+
+        <button type="submit" class="w-full bg-green-600 text-white font-semibold py-2 rounded-md hover:bg-green-700 transition duration-200">
+          Simpan Kategori
         </button>
       </form>
     </div>
