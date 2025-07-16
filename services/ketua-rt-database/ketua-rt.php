@@ -161,6 +161,49 @@ function getIdWarga()
     return $idWarga;
 }
 
+function updateWarga()
+{
+    global $conn;
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $idWarga = $_POST['idWarga'];
+        $nama = $_POST['nama'];
+        $email = $_POST['email'];
+        $noRumah = $_POST['noRumah'];
+
+        $stmt = $conn->prepare("UPDATE warga SET nama = ?, email = ?, noRumah = ? WHERE idWarga = ?");
+        $stmt->bind_param("ssss", $nama, $email, $noRumah, $idWarga);
+
+        if ($stmt->execute()) {
+            echo "<script>alert('Data warga berhasil diperbarui!'); window.location.href='../../pages/ketua-rt/warga-rt.php';</script>";
+        } else {
+            echo "<script>alert('Gagal memperbarui data: " . $conn->error . "'); window.history.back();</script>";
+        }
+
+        $stmt->close();
+    }
+}
+
+function hapusWarga() {
+    global $conn;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['noRumah'])) {
+        $noRumah = mysqli_real_escape_string($conn, $_POST['noRumah']);
+
+        $query = "DELETE FROM warga WHERE noRumah = '$noRumah'";
+
+        if (mysqli_query($conn, $query)) {
+            echo "<script>alert('Data berhasil dihapus!'); window.location.href='../../pages/ketua-rt/warga-rt.php';</script>";
+            exit();
+        } else {
+            echo "Gagal menghapus data: " . mysqli_error($conn);
+        }
+    }
+}
+
+
+
+
+
 if (isset($_GET['aksi'])) {
     $aksi = $_GET['aksi'];
 
@@ -168,6 +211,10 @@ if (isset($_GET['aksi'])) {
         registerRt();
     } elseif ($aksi == "tambah_warga") {
         insertWarga();
+    } elseif ($aksi == "edit_warga") {
+        updateWarga();
+    }elseif ($aksi == "hapus_warga") {
+        hapusWarga();
     } else {
         echo "Fungsi '$aksi' tidak dikenali.";
     }

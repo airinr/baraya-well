@@ -56,7 +56,7 @@ $idWarga = getIdWarga();
                                         <td class="p-2 border"><?= $row['email'] ?></td>
                                         <td class="p-2 border">
                                             <div class="flex justify-center items-center space-x-2">
-                                                <button onclick="openEditPopup('<?= $row['noRumah'] ?>', '<?= htmlspecialchars($row['nama'], ENT_QUOTES) ?>')" class="bg-yellow-400 text-white px-2 py-1 rounded text-xs hover:bg-yellow-500">Update</button>
+                                                <button onclick="openEditPopup('<?= $row['idWarga'] ?>','<?= $row['noRumah'] ?>','<?= htmlspecialchars($row['nama'], ENT_QUOTES) ?>','<?= $row['email'] ?>')" class="bg-yellow-400 text-white px-2 py-1 rounded text-xs hover:bg-yellow-500">Update</button>
                                                 <button onclick="openDeletePopup('<?= $row['noRumah'] ?>')" class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Delete</button>
                                             </div>
                                         </td>
@@ -104,13 +104,66 @@ $idWarga = getIdWarga();
         </div>
     </div>
 
+    <!-- Popup Edit Warga -->
+    <div id="popup-edit" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div id="popup-edit-content" class="bg-white rounded-xl shadow-lg p-8 w-[350px] border-2 border-yellow-400 relative">
+            <button onclick="document.getElementById('popup-edit').classList.add('hidden')" class="absolute top-2 right-3 text-gray-700 text-xl">&times;</button>
+            <h2 class="text-2xl font-bold text-center mb-6 text-yellow-600">Edit Warga</h2>
+            <form method="POST" action="../../services/ketua-rt-database/ketua-rt.php?aksi=edit_warga">
+
+                <!-- ID Warga (tidak bisa diedit) -->
+                <input type="text" id="editIdWargaDisplay" disabled class="..." />
+                <input type="hidden" name="idWarga" id="editIdWarga" />
+
+
+                <!-- Nomor Rumah -->
+                <label class="block mb-2 font-medium text-gray-700">Nomor Rumah</label>
+                <input type="text" name="noRumah" id="editNoRumah" required class="w-full mb-4 border-b border-black bg-transparent py-1">
+
+                <!-- Nama Kepala Keluarga -->
+                <label class="block mb-2 font-medium text-gray-700">Nama Kepala Keluarga</label>
+                <input type="text" name="nama" id="editNamaKepala" required class="w-full mb-4 border-b border-black bg-transparent py-1">
+
+                <!-- Email -->
+                <label class="block mb-2 font-medium text-gray-700">Email</label>
+                <input type="text" name="email" id="editEmailWarga" required class="w-full mb-4 border-b border-black bg-transparent py-1">
+
+                <button type="submit" class="w-full bg-yellow-500 text-white font-semibold py-2 rounded-md hover:bg-yellow-600 transition duration-200">
+                    Perbarui
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Popup Hapus Warga -->
+    <div id="popup-delete" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div id="popup-delete-content" class="bg-white rounded-xl shadow-lg p-8 w-[350px] border-2 border-red-400 relative">
+            <button onclick="document.getElementById('popup-delete').classList.add('hidden')" class="absolute top-2 right-3 text-gray-700 text-xl">&times;</button>
+            <h2 class="text-2xl font-bold text-center mb-6 text-red-600">Hapus Warga</h2>
+            <p class="text-center text-gray-700 mb-6">Yakin ingin menghapus warga dengan No Rumah <span id="deleteNoRumah" class="font-semibold text-red-500"></span>?</p>
+            <form method="POST" action="../../services/ketua-rt-database/ketua-rt.php?aksi=hapus_warga">
+                <input type="hidden" name="noRumah" id="deleteInputNoRumah">
+                <button type="submit" class="w-full bg-red-600 text-white font-semibold py-2 rounded-md hover:bg-red-700 transition duration-200">
+                    Hapus
+                </button>
+            </form>
+        </div>
+    </div>
+
+
     <!-- JS popup -->
     <script>
-        function openEditPopup(noRumah, nama) {
+        function openEditPopup(idWarga, noRumah, nama, email) {
+            document.getElementById('editIdWargaDisplay').value = idWarga; // yang tampil
+            document.getElementById('editIdWarga').value = idWarga; // yang dikirim
+
             document.getElementById('editNoRumah').value = noRumah;
             document.getElementById('editNamaKepala').value = nama;
+            document.getElementById('editEmailWarga').value = email;
             document.getElementById('popup-edit').classList.remove('hidden');
         }
+
 
         function openDeletePopup(noRumah) {
             document.getElementById('deleteNoRumah').textContent = noRumah;
