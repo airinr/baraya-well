@@ -19,7 +19,7 @@
         <div class="md:w-1/2 text-center md:text-left space-y-4">
             <h1 class="text-4xl md:text-5xl font-extrabold">BARAYA WELL</h1>
             <p class="text-lg">Solusi keuangan warga</p>
-            <a href="#" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md mt-4 hover:bg-blue-700">Login</a>
+            <a href="pages/warga/beranda-warga.php" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md mt-4 hover:bg-blue-700">Login</a>
         </div>
         <div class="md:w-1/2">
             <div class="clip-triangle overflow-hidden">
