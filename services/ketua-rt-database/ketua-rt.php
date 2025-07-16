@@ -68,9 +68,31 @@ function getPemasukan()
 function getPengeluaran()
 {
     global $conn;
-    $query = "SELECT * FROM pengeluaran, rt, kategori WHERE pengeluaran.idRt = rt.idRt AND pengeluaran.idKategori = kategori.idKategori"; 
+    $query = "SELECT * FROM pembayaran, warga WHERE pembayaran.idWarga = warga.idWarga"; 
     return $conn->query($query);
 }
+
+function getWarga()
+{
+    global $conn;
+    $query = "SELECT * FROM warga, rt WHERE warga.idRt = rt.idRt"; 
+    return $conn->query($query);
+}
+
+function getTotalPemasukan()
+{
+    global $conn;
+    $query = "SELECT SUM(totalBayar) AS total FROM pembayaran";
+    $result = $conn->query($query);
+
+    if ($result && $row = $result->fetch_assoc()) {
+        return $row['total'] ?? 0;
+    } else {
+        return 0;
+    }
+}
+
+
 
 // Jika dipanggil via URL
 if (isset($_GET['aksi'])) {
