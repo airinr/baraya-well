@@ -58,6 +58,41 @@ function registerRt()
     }
 }
 
+function loginRt($username, $password)
+{
+    global $conn;
+
+    $stmt = $conn->prepare("SELECT * FROM rt WHERE nama = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if ($result && $result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+
+        if (password_verify($password, $user['password'])) {
+            // Login berhasil, simpan ke session
+            $_SESSION['idRt'] = $user['idRt'];
+            $_SESSION['nama'] = $user['nama'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['rt'] = $user['rt'];
+            $_SESSION['rw'] = $user['rw'];
+
+            header("Location: pages/ketua-rt/beranda-rt.php");
+            exit();
+        } else {
+            echo "<script>alert('Password salah!');</script>";
+        }
+    } else {
+        echo "<script>alert('Akun tidak ditemukan!'); window.history.back();</script>";
+    }
+
+    $stmt->close();
+}
+
+
+
 function getPemasukan()
 {
     global $conn;
