@@ -1,7 +1,7 @@
 <?php
 include '../../services/ketua-rt-database/ketua-rt.php';
 
-$pemasukan = getPemasukan();
+$pemasukan = getPemasukan($_SESSION['idRt']);
 $pengeluaran = getPengeluaran();
 ?>
 

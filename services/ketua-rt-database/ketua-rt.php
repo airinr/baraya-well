@@ -93,10 +93,10 @@ function loginRt($username, $password)
 
 
 
-function getPemasukan()
+function getPemasukan($idRt)
 {
     global $conn;
-    $query = "SELECT * FROM pembayaran, warga WHERE pembayaran.idWarga = warga.idWarga";
+    $query = "SELECT * FROM pembayaran, warga, rt WHERE pembayaran.idWarga = warga.idWarga AND warga.idRt = rt.idRt AND rt.idRt = '$idRt' ";
     return $conn->query($query);
 }
 
