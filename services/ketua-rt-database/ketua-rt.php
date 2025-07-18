@@ -96,28 +96,28 @@ function loginRt($username, $password)
 function getPemasukan($idRt)
 {
     global $conn;
-    $query = "SELECT * FROM pembayaran, warga, rt WHERE pembayaran.idWarga = warga.idWarga AND warga.idRt = rt.idRt AND rt.idRt = '$idRt' ";
+    $query = "SELECT pembayaran.tglPembayaran, warga.nama, pembayaran.totalBayar FROM pembayaran, warga, rt WHERE pembayaran.idWarga = warga.idWarga AND warga.idRt = rt.idRt AND rt.idRt = '$idRt' ";
     return $conn->query($query);
 }
 
-function getPengeluaran()
+function getPengeluaran($idRt)
 {
     global $conn;
-    $query = "SELECT * FROM pengeluaran, kategori WHERE pengeluaran.idKategori = kategori.idKategori";
+    $query = "SELECT * FROM pengeluaran, kategori, rt WHERE pengeluaran.idKategori = kategori.idKategori AND pengeluaran.idRt = rt.idRt AND rt.idRt = '$idRt'";
     return $conn->query($query);
 }
 
-function getWarga()
+function getWarga($idRt)
 {
     global $conn;
-    $query = "SELECT warga.idWarga, warga.nama, warga.email, warga.noRumah FROM warga, rt WHERE warga.idRt = rt.idRt";
+    $query = "SELECT warga.idWarga, warga.nama, warga.email, warga.noRumah FROM warga, rt WHERE warga.idRt = rt.idRt AND rt.idRt = '$idRt' ";
     return $conn->query($query);
 }
 
-function getTotalPemasukan()
+function getTotalPemasukan($idRt)
 {
     global $conn;
-    $query = "SELECT SUM(totalBayar) AS total FROM pembayaran";
+    $query = "SELECT SUM(totalBayar) AS total FROM pembayaran, warga, rt WHERE pembayaran.idWarga = warga.idWarga AND warga.idRt= rt.idRt AND rt.idRt = '$idRt' ";
     $result = $conn->query($query);
 
     if ($result && $row = $result->fetch_assoc()) {
@@ -241,35 +241,60 @@ function pengeluaranRt($idRt)
 {
     global $conn;
 
+    // Pastikan format tanggal konsisten
+    $tanggal = date('Y-m-d');
+
     // 1. Ambil total pemasukan dari RT
-    $sqlPemasukan = "SELECT SUM(totalBayar) AS total FROM pembayaran, warga, rt WHERE pembayaran.idWarga = warga.idWarga AND warga.idRt = rt.idRt AND rt.idRt = '$idRt'";
+    $sqlPemasukan = "SELECT SUM(totalBayar) AS total 
+                     FROM pembayaran 
+                     JOIN warga ON pembayaran.idWarga = warga.idWarga 
+                     JOIN rt ON warga.idRt = rt.idRt 
+                     WHERE rt.idRt = '$idRt'";
     $result = $conn->query($sqlPemasukan);
     $totalPemasukan = $result->fetch_assoc()['total'];
+
+    if (!$totalPemasukan || $totalPemasukan <= 0) {
+        return; // Tidak ada pemasukan, tidak perlu lanjut
+    }
 
     // 2. Ambil semua kategori pengeluaran dan persentasenya
     $sqlKategori = "SELECT idKategori, persentase FROM kategori";
     $kategoriResult = $conn->query($sqlKategori);
 
-    // 3. Masukkan ke pengeluaran berdasarkan persentase
     while ($row = $kategoriResult->fetch_assoc()) {
         $idKategori = $row['idKategori'];
         $persen = $row['persentase'];
         $jumlah = ($persen / 100) * $totalPemasukan;
-        $tanggal = date('Y-m-d');
 
-        // 4. Cek apakah sudah pernah dimasukkan sebelumnya
-        $check = $conn->query("SELECT * FROM pengeluaran WHERE idKategori = '$idKategori' AND tglPengeluaran = '$tanggal'");
+        // 3. Cek apakah sudah ada data untuk kategori + tanggal + RT
+        $check = $conn->query("SELECT * FROM pengeluaran 
+                               WHERE idKategori = '$idKategori' 
+                               AND tglPengeluaran = '$tanggal'
+                               AND idRt = '$idRt'");
         if ($check->num_rows == 0) {
-            $conn->query("INSERT INTO pengeluaran (idKategori, tglPengeluaran, nominal) 
-                          VALUES ('$idKategori', '$tanggal', '$jumlah')");
+            // 4. Buat idPengeluaran unik (otomatis N001, N002, dst)
+            $getLast = $conn->query("SELECT idPengeluaran FROM pengeluaran ORDER BY idPengeluaran DESC LIMIT 1");
+            if ($getLast->num_rows > 0) {
+                $lastId = $getLast->fetch_assoc()['idPengeluaran'];
+                $lastNum = (int)substr($lastId, 1); // Ambil angka dari Nxxx
+                $newNum = $lastNum + 1;
+                $idPengeluaran = 'N' . str_pad($newNum, 3, '0', STR_PAD_LEFT);
+            } else {
+                $idPengeluaran = 'N001';
+            }
+
+            // 5. Masukkan ke database
+            $conn->query("INSERT INTO pengeluaran (idPengeluaran, tglPengeluaran, nominal, idRt, idKategori)
+                          VALUES ('$idPengeluaran', '$tanggal', '$jumlah', '$idRt', '$idKategori')");
         }
     }
 }
 
-function getTotalPengeluaran()
+
+function getTotalPengeluaran($idRt)
 {
-     global $conn;
-    $query = "SELECT SUM(nominal) AS total FROM pengeluaran";
+    global $conn;
+    $query = "SELECT SUM(nominal) AS total FROM pengeluaran WHERE idRt = '$idRt' ";
     $result = $conn->query($query);
 
     if ($result && $row = $result->fetch_assoc()) {
@@ -279,20 +304,89 @@ function getTotalPengeluaran()
     }
 }
 
+function insertKategori($kategori, $persentase)
+{
+    global $conn;
+
+    // Ambil idRt dari session
+    $idRt = $_SESSION['idRt'] ?? null;
+    if (!$idRt) {
+        return false; // Tidak bisa insert jika belum login
+    }
+
+    // Ambil ID terakhir dari tabel kategori
+    $queryLastId = "SELECT idKategori FROM kategori ORDER BY idKategori DESC LIMIT 1";
+    $result = $conn->query($queryLastId);
+
+    if ($result && $result->num_rows > 0) {
+        $lastId = $result->fetch_assoc()['idKategori'];
+        $number = (int)substr($lastId, 1);
+        $newNumber = $number + 1;
+        $newId = 'K' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+    } else {
+        $newId = 'K001';
+    }
+
+    // Eksekusi insert
+    $query = "INSERT INTO kategori (idKategori, kategori, persentase, idRt)
+              VALUES ('$newId', '$kategori', '$persentase', '$idRt')";
+
+    return $conn->query($query);
+}
+
+function getKategoriPengeluaran($idRt) {
+    global $conn;
+    $query = "SELECT * FROM kategori WHERE idRt = '$idRt'";
+    return $conn->query($query);
+}
+
+
+
 
 
 if (isset($_GET['aksi'])) {
     $aksi = $_GET['aksi'];
 
-    if ($aksi == "register") {
-        registerRt();
-    } elseif ($aksi == "tambah_warga") {
-        insertWarga();
-    } elseif ($aksi == "edit_warga") {
-        updateWarga();
-    } elseif ($aksi == "hapus_warga") {
-        hapusWarga();
-    } else {
-        echo "Fungsi '$aksi' tidak dikenali.";
+    switch ($aksi) {
+        case "register":
+            registerRt();
+            break;
+
+        case "tambah_warga":
+            insertWarga();
+            break;
+
+        case "edit_warga":
+            updateWarga();
+            break;
+
+        case "hapus_warga":
+            hapusWarga();
+            break;
+
+        case "tambah_pengeluaran":
+            $idRt = $_SESSION['idRt'] ?? null;
+            if ($idRt) {
+                pengeluaranRt($idRt);
+            }
+            break;
+
+        case "tambah_kategori":
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $kategori = $_POST['kategori'] ?? '';
+                $persentase = $_POST['persentase'] ?? 0;
+
+                if (insertKategori($kategori, $persentase)) {
+                    echo "<script>alert('Kategori berhasil ditambahkan!'); window.location.href=document.referrer;</script>";
+                } else {
+                    echo "<script>alert('Gagal menambahkan kategori.'); window.history.back();</script>";
+                }
+            }
+            break;
+
+        default:
+            echo "Fungsi '$aksi' tidak dikenali.";
+            break;
     }
 }
+

@@ -1,7 +1,9 @@
 <?php
 include '../../services/ketua-rt-database/ketua-rt.php';
 
-$warga = getWarga();
+$idRt = $_SESSION['idRt'];
+
+$warga = getWarga($idRt);
 $idWarga = getIdWarga();
 ?>
 

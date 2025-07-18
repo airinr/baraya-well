@@ -1,9 +1,10 @@
 <?php
 include_once '../../services/ketua-rt-database/ketua-rt.php';
 
+$idRt = $_SESSION['idRt'];
 
-$total_pemasukan = getTotalPemasukan();
-$total_pengeluaran = getTotalPengeluaran();
+$total_pemasukan = getTotalPemasukan($idRt);
+$total_pengeluaran = getTotalPengeluaran($idRt);
 $sisa = $total_pemasukan - $total_pengeluaran;
 
 ?>

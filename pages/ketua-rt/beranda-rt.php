@@ -1,8 +1,10 @@
 <?php
 include '../../services/ketua-rt-database/ketua-rt.php';
 
+$idRt = $_SESSION['idRt'];
+
 $pemasukan = getPemasukan($_SESSION['idRt']);
-$pengeluaran = getPengeluaran();
+$pengeluaran = getPengeluaran($idRt);
 ?>
 
 <!DOCTYPE html>
