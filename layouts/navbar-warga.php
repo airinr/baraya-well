@@ -26,7 +26,7 @@
 
         <!-- Dropdown Menu -->
         <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-30 border">
-            <a href="#" class="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors">
+            <a href="../../services/logout.php" class="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors">
                 <i data-lucide="log-out" class="w-4 h-4 mr-2"></i>
                 Logout
             </a>

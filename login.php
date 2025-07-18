@@ -10,7 +10,7 @@
     if ($role === 'ketua') {
       loginRt($username, $password);
     } else {
-      echo "<script>alert('Peran tidak dikenali atau belum didukung.'); window.history.back();</script>";
+      loginWarga($username,$password);
     }
   }
   ?>

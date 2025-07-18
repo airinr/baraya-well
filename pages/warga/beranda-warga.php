@@ -1,3 +1,13 @@
+<?php 
+    session_start();
+
+$namaWarga = isset($_SESSION["nama"]) ? $_SESSION["nama"] : "Warga";
+
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -15,7 +25,7 @@
 
     <?php
         // Data dinamis (contoh)
-        $nama_warga = "Budi Santoso";
+        $nama_warga = $namaWarga;
         $blok_rumah = "A-12";
         $iuran = 75000;
         $bulan_tagihan = "Juli 2025";

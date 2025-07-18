@@ -20,7 +20,7 @@ $pengeluaran = getPengeluaran($idRt);
 <body class="bg-white font-sans">
 
   <!-- Navbar -->
-  <?php include '../../layouts/navbar.php' ?>
+  <?php include '../../layouts/navbar-warga.php' ?>
 
   <main class="flex min-h-screen">
 

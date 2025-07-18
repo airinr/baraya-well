@@ -340,6 +340,40 @@ function getKategoriPengeluaran($idRt) {
     return $conn->query($query);
 }
 
+function loginWarga($username, $password)
+{
+    global $conn;
+
+    $stmt = $conn->prepare("SELECT * FROM warga WHERE nama = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if ($result && $result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+
+        if (password_verify($password, $user['password'])) {
+            // Login berhasil, simpan ke session
+            $_SESSION['idWarga']  = $user['idWarga'];
+            $_SESSION['nama']     = $user['nama'];
+            $_SESSION['email']    = $user['email'];
+            $_SESSION['noRumah']  = $user['noRumah'];
+            $_SESSION['idRt']     = $user['idRt'];
+
+            header("Location: pages/warga/beranda-warga.php");
+            exit();
+        } else {
+            echo "<script>alert('Password salah!'); window.history.back();</script>";
+        }
+    } else {
+        echo "<script>alert('Akun tidak ditemukan!'); window.history.back();</script>";
+    }
+
+    $stmt->close();
+}
+
+
 
 
 
