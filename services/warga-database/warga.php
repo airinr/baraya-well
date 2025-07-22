@@ -33,7 +33,7 @@ function registerWarga()
 {
     global $conn;
 
-     if (session_status() === PHP_SESSION_NONE) {
+    if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
 
@@ -159,22 +159,155 @@ function getBulanIniStatus($koneksi, $id_warga, $iuran_tetap)
     }
 }
 
-function getRiwayatPembayaran($koneksi, $id_warga, $limit = 3)
+function getKategori($idRt)
 {
-    $query = "SELECT * FROM pembayaran 
-              WHERE idWarga = '$id_warga' 
-              ORDER BY tglPembayaran DESC 
-              LIMIT $limit";
+    global $conn;
 
-    return mysqli_query($koneksi, $query);
+    $kategori = [];
+
+    // Query data kategori berdasarkan id_rt
+    $query = "SELECT * FROM kategori WHERE idRt = ?";
+    $stmt = mysqli_prepare($conn, $query);
+
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "s", $idRt);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        // Ambil hasil dan simpan ke array
+        while ($row = mysqli_fetch_assoc($result)) {
+            $kategori[] = $row;
+        }
+
+        mysqli_stmt_close($stmt);
+    }
+
+    return $kategori;
 }
 
-// Jika dipanggil via URL
-if (isset($_GET['aksi'])) {
-    $aksi = $_GET['aksi'];
-    if ($aksi == "register") {
-        registerWarga();
+function bayarIuran($idWarga)
+{
+    global $conn;
+
+    $tanggalBayar = date('Y-m-d');
+    $tglJatuhTempo = date('Y') . '-' . date('m') . '-15';
+
+    $denda = 0;
+    if (strtotime($tanggalBayar) > strtotime($tglJatuhTempo)) {
+        $denda = 5000;
+    }
+
+    $jumlahIuran = 30000;
+    $totalBayar = $jumlahIuran + $denda;
+
+    $bulanIni = date('Y-m');
+    $cek = $conn->prepare("SELECT 1 FROM pembayaran WHERE idWarga = ? AND DATE_FORMAT(tglPembayaran, '%Y-%m') = ?");
+    $cek->bind_param("ss", $idWarga, $bulanIni);
+    $cek->execute();
+    $cek->store_result();
+
+    if ($cek->num_rows > 0) {
+        return false; // Sudah membayar bulan ini
+    }
+
+    // Ambil ID terakhir
+    $result = $conn->query("SELECT idPembayaran FROM pembayaran ORDER BY idPembayaran DESC LIMIT 1");
+    if ($row = $result->fetch_assoc()) {
+        $lastId = (int)substr($row['idPembayaran'], 1); // Hilangkan 'P' dan ubah ke int
+        $newId = 'P' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
     } else {
-        echo "Fungsi '$aksi' tidak dikenali.";
+        $newId = 'P001';
+    }
+
+    $idPembayaran = $newId;
+    $idKodeBayar = "000";
+
+    // Masukkan data
+    $stmt = $conn->prepare("INSERT INTO pembayaran (idPembayaran, tglJatuhTempo, tglPembayaran, jumlahIuran, denda, totalBayar, idWarga, idKodeBayar)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param(
+        "sssiiiss",
+        $idPembayaran,
+        $tglJatuhTempo,
+        $tanggalBayar,
+        $jumlahIuran,
+        $denda,
+        $totalBayar,
+        $idWarga,
+        $idKodeBayar
+    );
+
+    if ($stmt->execute()) {
+        header("Location: ../../pages/warga/beranda-warga.php?status=berhasil");
+        exit();
+    } else {
+        echo "<script>alert('Gagal membayar iuran.'); window.history.back();</script>";
+        return false;
     }
 }
+
+function getTagihanWarga($idWarga)
+{
+    global $conn;
+
+    $tanggalSekarang = date('Y-m-d');
+    $bulan_tagihan = date('F Y');
+    $tglJatuhTempo = date('Y') . '-' . date('m') . '-15';
+    $iuran = 30000;
+    $denda = (strtotime($tanggalSekarang) > strtotime($tglJatuhTempo)) ? 5000 : 0;
+    $totalTagihan = $iuran + $denda;
+
+    $bulanIni = date('Y-m');
+
+    $cek = $conn->prepare("SELECT 1 FROM pembayaran WHERE idWarga = ? AND DATE_FORMAT(tglPembayaran, '%Y-%m') = ?");
+    $cek->bind_param("ss", $idWarga, $bulanIni);
+    $cek->execute();
+    $cek->store_result();
+
+    $sudahBayar = $cek->num_rows > 0;
+
+    return [
+        'bulan_tagihan' => $bulan_tagihan,
+        'jatuh_tempo' => $tglJatuhTempo,
+        'iuran' => $iuran,
+        'denda' => $denda,
+        'total' => $totalTagihan,
+        'sudah_bayar' => $sudahBayar,
+    ];
+}
+
+function getRiwayatPembayaran($id_warga, $limit = 5) {
+    global $conn;
+
+    $query = "SELECT * 
+              FROM pembayaran 
+              WHERE idWarga = ? 
+              ORDER BY tglPembayaran DESC 
+              LIMIT ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("si", $id_warga, $limit);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $riwayat = [];
+    while ($row = $result->fetch_assoc()) {
+        $riwayat[] = $row;
+    }
+
+    return $riwayat;
+}
+
+function getRTById($idRt) {
+    global $conn;
+
+    $query = "SELECT * FROM rt WHERE idRT = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $idRt);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    return $result->fetch_assoc(); 
+}
+
+
+
