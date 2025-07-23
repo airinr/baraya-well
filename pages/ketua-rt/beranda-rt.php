@@ -12,6 +12,11 @@ $total_pemasukan = getTotalPemasukan($idRt);
 $total_pengeluaran = getTotalPengeluaran($idRt);
 $sisa = $total_pemasukan - $total_pengeluaran;
 
+$currentMonth = date('m');
+$currentYear = date('Y');
+
+$pengeluaran_bulanan = getPengeluaranBulanan($idRt, $currentMonth, $currentYear);
+
 // Determine colors for balance
 $sisa_color_class = 'text-white'; // Default to white
 if ($sisa < 0) {
@@ -73,58 +78,54 @@ if ($sisa < 0) {
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <a href="/pengeluaran-rt.php" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 px-6 rounded-lg shadow-md flex items-center justify-center transition duration-300 ease-in-out">
+        <a href="../ketua-rt/pengeluaran-rt.php" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 px-6 rounded-lg shadow-md flex items-center justify-center transition duration-300 ease-in-out">
           <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12A9 9 0 113 12a9 9 0 0118 0z"></path>
           </svg>
           Tambah Pengeluaran
         </a>
-        <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-md flex items-center justify-center transition duration-300 ease-in-out">
-          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-4m3 4v-4m3 4v-4m-9 8h10a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-          </svg>
-          Lihat Laporan
-        </button>
-        <button class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-lg shadow-md flex items-center justify-center transition duration-300 ease-in-out">
+        <a href="../ketua-rt/pemasukan-rt.php" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-md flex items-center justify-center transition duration-300 ease-in-out">
           <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V4m0 12v4m-6-2h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
           </svg>
           Kas Masuk
-        </button>
+        </a>
+        <a href="../ketua-rt/warga-rt.php" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-md flex items-center justify-center transition duration-300 ease-in-out">
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-4m3 4v-4m3 4v-4m-9 8h10a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+          Lihat Anggota
+        </a>
       </div>
 
       <div class="bg-white p-6 rounded-lg shadow-md mb-8">
         <h3 class="text-xl md:text-2xl font-semibold text-blue-800 mb-4">Pengeluaran Bulan Juli 2025</h3>
         <div class="flex items-center justify-between mb-4">
-          <p class="text-red-600 text-3xl md:text-4xl font-bold">Rp 1.200.000</p>
+          <p class="text-red-600 text-3xl md:text-4xl font-bold">Rp. <?= number_format($total_pengeluaran, 0, ',', '.') ?></p>
           <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
           </svg>
         </div>
 
-        <div class="space-y-3">
+
+
+        <?php foreach ($pengeluaran_bulanan as $data):
+          $nama = $data['kategori'];
+          $persentase = $data['persentase'];
+          $pengeluaran = $data['nominal'];
+          $alokasi = ($persentase / 100) * $total_pemasukan;
+          $progress = $alokasi > 0 ? ($pengeluaran / $alokasi) * 100 : 0;
+        ?>
           <div class="flex items-center">
-            <span class="w-1/3 text-gray-700">Listrik & Air</span>
+            <span class="w-1/5 text-gray-700"><?= htmlspecialchars($nama) ?></span>
             <div class="w-2/3 bg-gray-200 rounded-full h-3">
-              <div class="bg-blue-500 h-3 rounded-full" style="width: 60%;"></div>
+              <div class="bg-blue-500 h-3 rounded-full" style="width: <?= $data['persentase'] ?>%;"></div>
             </div>
-            <span class="ml-3 text-sm text-gray-600">Rp 450.000</span>
+            <span class="ml-3 text-sm text-gray-600">
+              Rp <?= number_format($pengeluaran, 0, ',', '.') ?>
+            </span>
           </div>
-          <div class="flex items-center">
-            <span class="w-1/3 text-gray-700">Kebersihan</span>
-            <div class="w-2/3 bg-gray-200 rounded-full h-3">
-              <div class="bg-blue-500 h-3 rounded-full" style="width: 35%;"></div>
-            </div>
-            <span class="ml-3 text-sm text-gray-600">Rp 250.000</span>
-          </div>
-          <div class="flex items-center">
-            <span class="w-1/3 text-gray-700">Acara RT</span>
-            <div class="w-2/3 bg-gray-200 rounded-full h-3">
-              <div class="bg-blue-500 h-3 rounded-full" style="width: 40%;"></div>
-            </div>
-            <span class="ml-3 text-sm text-gray-600">Rp 300.000</span>
-          </div>
-        </div>
+        <?php endforeach; ?>
       </div>
 
       <div class="bg-white p-6 rounded-lg shadow-md">
@@ -133,42 +134,12 @@ if ($sisa < 0) {
           <div class="flex items-center justify-between pb-3 border-b border-blue-100 last:border-b-0">
             <div>
               <p class="text-gray-400 text-sm">20 Juli 2025</p>
-              <p class="font-medium text-gray-800">Pembelian Lampu Pos Ronda</p>
-              <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Keamanan</span>
+              <p class="font-medium text-gray-800">Airin membayar cash sebesar Rp. 35.000</p>
+              <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Denda: Rp 5.000</span>
             </div>
-            <span class="text-red-500 font-semibold">- Rp 150.000</span>
-          </div>
-          <div class="flex items-center justify-between pb-3 border-b border-blue-100 last:border-b-0">
-            <div>
-              <p class="text-gray-400 text-sm">18 Juli 2025</p>
-              <p class="font-medium text-gray-800">Konsumsi Rapat Warga</p>
-              <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Acara RT</span>
-            </div>
-            <span class="text-red-500 font-semibold">- Rp 200.000</span>
-          </div>
-          <div class="flex items-center justify-between pb-3 border-b border-blue-100 last:border-b-0">
-            <div>
-              <p class="text-gray-400 text-sm">15 Juli 2025</p>
-              <p class="font-medium text-gray-800">Pembayaran Petugas Sampah</p>
-              <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Kebersihan</span>
-            </div>
-            <span class="text-red-500 font-semibold">- Rp 100.000</span>
-          </div>
-          <div class="flex items-center justify-between pb-3 border-b border-blue-100 last:border-b-0">
-            <div>
-              <p class="text-gray-400 text-sm">12 Juli 2025</p>
-              <p class="font-medium text-gray-800">Sumbangan Perbaikan Jalan</p>
-              <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Infrastruktur</span>
-            </div>
-            <span class="text-red-500 font-semibold">- Rp 300.000</span>
-          </div>
-          <div class="flex items-center justify-between pb-3 border-b border-blue-100 last:border-b-0">
-            <div>
-              <p class="text-gray-400 text-sm">08 Juli 2025</p>
-              <p class="font-medium text-gray-800">Pengadaan Bendera Merah Putih</p>
-              <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Perlengkapan</span>
-            </div>
-            <span class="text-red-500 font-semibold">- Rp 75.000</span>
+            <button class="px-4 py-2 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+              Terima
+            </button>
           </div>
         </div>
         <div class="text-center mt-6">

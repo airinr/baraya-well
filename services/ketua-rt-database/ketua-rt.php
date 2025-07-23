@@ -343,6 +343,23 @@ function getKategoriPengeluaran($idRt)
     return $conn->query($query);
 }
 
+
+function getPengeluaranBulanan($idRt, $month, $year)
+{
+    global $conn; // Menggunakan variabel koneksi global
+    $sql = "SELECT * 
+        FROM pengeluaran 
+        JOIN kategori ON pengeluaran.idKategori = kategori.idKategori 
+        WHERE pengeluaran.idRt = ?  AND MONTH(tglPengeluaran) = ? AND YEAR(tglPengeluaran) = ?
+            ORDER BY tglPengeluaran DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sii", $idRt, $month, $year);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result;
+}
+
+
 function loginWarga($username, $password)
 {
     global $conn;
