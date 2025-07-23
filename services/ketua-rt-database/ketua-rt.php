@@ -241,8 +241,9 @@ function pengeluaranRt($idRt)
 {
     global $conn;
 
-    // Pastikan format tanggal konsisten
+    // Tanggal saat ini
     $tanggal = date('Y-m-d');
+    $bulanIni = date('Y-m'); // Format: YYYY-MM
 
     // 1. Ambil total pemasukan dari RT
     $sqlPemasukan = "SELECT SUM(totalBayar) AS total 
@@ -266,29 +267,30 @@ function pengeluaranRt($idRt)
         $persen = $row['persentase'];
         $jumlah = ($persen / 100) * $totalPemasukan;
 
-        // 3. Cek apakah sudah ada data untuk kategori + tanggal + RT
+        // 3. Cek apakah sudah ada data untuk bulan ini dan RT
         $check = $conn->query("SELECT * FROM pengeluaran 
                                WHERE idKategori = '$idKategori' 
-                               AND tglPengeluaran = '$tanggal'
+                               AND DATE_FORMAT(tglPengeluaran, '%Y-%m') = '$bulanIni'
                                AND idRt = '$idRt'");
         if ($check->num_rows == 0) {
-            // 4. Buat idPengeluaran unik (otomatis N001, N002, dst)
+            // 4. Buat idPengeluaran unik
             $getLast = $conn->query("SELECT idPengeluaran FROM pengeluaran ORDER BY idPengeluaran DESC LIMIT 1");
             if ($getLast->num_rows > 0) {
                 $lastId = $getLast->fetch_assoc()['idPengeluaran'];
-                $lastNum = (int)substr($lastId, 1); // Ambil angka dari Nxxx
+                $lastNum = (int)substr($lastId, 1);
                 $newNum = $lastNum + 1;
                 $idPengeluaran = 'N' . str_pad($newNum, 3, '0', STR_PAD_LEFT);
             } else {
                 $idPengeluaran = 'N001';
             }
 
-            // 5. Masukkan ke database
+            // 5. Simpan pengeluaran
             $conn->query("INSERT INTO pengeluaran (idPengeluaran, tglPengeluaran, nominal, idRt, idKategori)
                           VALUES ('$idPengeluaran', '$tanggal', '$jumlah', '$idRt', '$idKategori')");
         }
     }
 }
+
 
 
 function getTotalPengeluaran($idRt)
@@ -334,7 +336,8 @@ function insertKategori($kategori, $persentase)
     return $conn->query($query);
 }
 
-function getKategoriPengeluaran($idRt) {
+function getKategoriPengeluaran($idRt)
+{
     global $conn;
     $query = "SELECT * FROM kategori WHERE idRt = '$idRt'";
     return $conn->query($query);
@@ -402,8 +405,12 @@ if (isset($_GET['aksi'])) {
             $idRt = $_SESSION['idRt'] ?? null;
             if ($idRt) {
                 pengeluaranRt($idRt);
+                // Setelah sukses, redirect untuk menghindari pengulangan saat refresh
+                header("Location: ../../pages/ketua-rt/pengeluaran-rt.php?status=success");
+                exit;
             }
             break;
+
 
         case "tambah_kategori":
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -423,4 +430,3 @@ if (isset($_GET['aksi'])) {
             break;
     }
 }
-
