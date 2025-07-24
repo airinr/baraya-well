@@ -14,9 +14,25 @@ if (isset($_GET['status']) && $_GET['status'] === 'success') {
     $showSuccessPopup = true;
 }
 
+// Handle adding keterangan
+if (isset($_POST['aksi']) && $_POST['aksi'] === 'tambah_keterangan' && isset($_POST['id_pengeluaran']) && isset($_POST['keterangan'])) {
+    $idPengeluaran = $_POST['id_pengeluaran'];
+    $keterangan = $_POST['keterangan'];
+    // Assuming you have a function to update the 'keterangan' in your database
+    if (updateKeteranganPengeluaran($idRt, $keterangan, $idPengeluaran)) {
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?status=success_keterangan');
+        exit();
+    } else {
+        // Handle error if update fails
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?status=error_keterangan');
+        exit();
+    }
+}
+
+
 // Ambil data pengeluaran dan kategori
-$pengeluaran = getPengeluaran($idRt); // Asumsi ini mengambil data pengeluaran aktual
-$kategori = getKategoriPengeluaran($idRt); // Asumsi ini mengambil data kategori pengeluaran
+$pengeluaran = getPengeluaran($idRt);
+$kategori = getKategoriPengeluaran($idRt);
 ?>
 
 <!DOCTYPE html>
@@ -32,18 +48,23 @@ $kategori = getKategoriPengeluaran($idRt); // Asumsi ini mengambil data kategori
         body {
             font-family: 'Inter', sans-serif;
         }
+
         /* Custom scrollbar untuk tabel */
         .table-scroll-y::-webkit-scrollbar {
             height: 8px;
             background-color: #f1f1f1;
             border-radius: 4px;
         }
+
         .table-scroll-y::-webkit-scrollbar-thumb {
-            background-color: #a0aec0; /* gray-400 */
+            background-color: #a0aec0;
+            /* gray-400 */
             border-radius: 4px;
         }
+
         .table-scroll-y::-webkit-scrollbar-thumb:hover {
-            background-color: #718096; /* gray-600 */
+            background-color: #718096;
+            /* gray-600 */
         }
     </style>
 </head>
@@ -69,7 +90,11 @@ $kategori = getKategoriPengeluaran($idRt); // Asumsi ini mengambil data kategori
                     <h3 class="font-bold text-xl text-gray-800">Data Kategori Pengeluaran</h3>
                     <button onclick="document.getElementById('popup-kategori').classList.remove('hidden')"
                         class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 shadow-md flex items-center">
-                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12A9 9 0 113 12a9 9 0 0118 0z"></path></svg>
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12A9 9 0 113 12a9 9 0 0118 0z"></path>
+                        </svg>
                         Tambah Kategori
                     </button>
                 </div>
@@ -77,27 +102,29 @@ $kategori = getKategoriPengeluaran($idRt); // Asumsi ini mengambil data kategori
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-blue-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Nama Kategori</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Persentase</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">Aksi</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Nama Kategori</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Persentase</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             <?php if ($kategori && $kategori->num_rows > 0): ?>
-                                <?php while ($row = $kategori->fetch_assoc()): ?>
-                                    <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($row['kategori']) ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?= $row['persentase'] ?>%</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div class="flex justify-center items-center space-x-2">
-                                                </div>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
+                            <?php while ($row = $kategori->fetch_assoc()): ?>
+                            <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <?= htmlspecialchars($row['kategori']) ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <?= $row['persentase'] ?>%</td>
+                            </tr>
+                            <?php endwhile; ?>
                             <?php else: ?>
-                                <tr>
-                                    <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">Belum ada kategori pengeluaran.</td>
-                                </tr>
+                            <tr>
+                                <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">Belum ada
+                                    kategori pengeluaran.</td>
+                            </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
@@ -109,37 +136,67 @@ $kategori = getKategoriPengeluaran($idRt); // Asumsi ini mengambil data kategori
                     <h3 class="font-bold text-xl text-gray-800">Daftar Pengeluaran Bulanan</h3>
                     <button onclick="document.getElementById('popup-konfirmasi').classList.remove('hidden')"
                         class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 shadow-md flex items-center">
-                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12A9 9 0 113 12a9 9 0 0118 0z"></path></svg>
-                        Tambah Pengeluaran
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12A9 9 0 113 12a9 9 0 0118 0z"></path>
+                        </svg>
+                        Pengeluaran Otomatis
                     </button>
                 </div>
                 <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm table-scroll-y">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-blue-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Tanggal</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Keperluan</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Jumlah</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">Aksi</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Tanggal</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Keperluan</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Jumlah</th>
+                                <th
+                                    class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Keterangan</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             <?php if ($pengeluaran && $pengeluaran->num_rows > 0): ?>
-                                <?php while ($row = $pengeluaran->fetch_assoc()): ?>
-                                    <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($row['tglPengeluaran']) ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?= htmlspecialchars($row['kategori']) ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">Rp. <?= number_format($row['nominal'], 0, ',', '.') ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div class="flex justify-center items-center space-x-2">
-                                                </div>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
+                            <?php while ($row = $pengeluaran->fetch_assoc()): ?>
+                            <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <?= htmlspecialchars($row['tglPengeluaran']) ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <?= htmlspecialchars($row['kategori']) ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">Rp.
+                                    <?= number_format($row['nominal'], 0, ',', '.') ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                    <?php if (empty($row['keterangan'])): // Assuming 'keterangan' is the column name for description ?>
+                                    <button onclick="openKeteranganPopup('<?= $row['idPengeluaran'] ?>')"
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 shadow-md flex items-center justify-center mx-auto">
+                                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12A9 9 0 113 12a9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Tambah Keterangan (opsional)
+                                    </button>
+                                    <?php else: ?>
+                                    <a href="#" onclick="openKeteranganPopup('<?= $row['idPengeluaran'] ?>')"
+                                        class="text-gray-900 bg-white border hover:border-blue-500 g px-3 py-1 inline-flex items-center justify-center transition duration-200 ease-in-out text-sm shadow-sm hover:text-blue-700">
+                                        <?= htmlspecialchars($row['keterangan']) ?>
+                                    </a>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
                             <?php else: ?>
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">Tidak ada data pengeluaran.</td>
-                                </tr>
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">Tidak ada data
+                                    pengeluaran.</td>
+                            </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
@@ -150,19 +207,23 @@ $kategori = getKategoriPengeluaran($idRt); // Asumsi ini mengambil data kategori
 
     <div id="popup-kategori" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
         <div class="bg-[#E7FFF1] rounded-xl shadow-lg p-8 w-[350px] border-2 border-green-500 relative">
-            <button onclick="document.getElementById('popup-kategori').classList.add('hidden')" class="absolute top-2 right-3 text-gray-700 text-xl">&times;</button>
+            <button onclick="document.getElementById('popup-kategori').classList.add('hidden')"
+                class="absolute top-2 right-3 text-gray-700 text-xl">&times;</button>
             <h2 class="text-2xl font-bold text-center mb-6 text-green-700">Tambah Kategori</h2>
             <form method="POST" action="?aksi=tambah_kategori">
                 <label class="block mb-2 font-medium text-gray-700">Nama Kategori</label>
-                <input type="text" name="kategori" placeholder="Contoh: Kebersihan" required class="w-full mb-4 border-b border-black bg-transparent focus:outline-none py-1">
+                <input type="text" name="kategori" placeholder="Contoh: Kebersihan" required
+                    class="w-full mb-4 border-b border-black bg-transparent focus:outline-none py-1">
                 <label class="block mb-2 font-medium text-gray-700">Persentase Kategori (%)</label>
-                <select name="persentase" required class="w-full mb-4 border-b border-black bg-transparent focus:outline-none py-1">
+                <select name="persentase" required
+                    class="w-full mb-4 border-b border-black bg-transparent focus:outline-none py-1">
                     <option value="">Pilih persentase</option>
                     <?php for ($i = 10; $i <= 100; $i += 10): ?>
-                        <option value="<?= $i ?>"><?= $i ?>%</option>
+                    <option value="<?= $i ?>"><?= $i ?>%</option>
                     <?php endfor; ?>
                 </select>
-                <button type="submit" class="w-full bg-green-600 text-white font-semibold py-2 rounded-md hover:bg-green-700 transition duration-200">
+                <button type="submit"
+                    class="w-full bg-green-600 text-white font-semibold py-2 rounded-md hover:bg-green-700 transition duration-200">
                     Simpan Kategori
                 </button>
             </form>
@@ -171,41 +232,80 @@ $kategori = getKategoriPengeluaran($idRt); // Asumsi ini mengambil data kategori
 
     <div id="popup-konfirmasi" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
         <div class="bg-white rounded-xl shadow-lg p-6 w-[350px] text-center border-2 border-blue-500 relative">
-            <button onclick="document.getElementById('popup-konfirmasi').classList.add('hidden')" class="absolute top-2 right-3 text-gray-700 text-xl">&times;</button>
+            <button onclick="document.getElementById('popup-konfirmasi').classList.add('hidden')"
+                class="absolute top-2 right-3 text-gray-700 text-xl">&times;</button>
             <h2 class="text-xl font-bold text-blue-700 mb-4">Konfirmasi</h2>
             <p class="text-gray-700 mb-6">Apakah Anda yakin ingin menambahkan pengeluaran bulan ini?</p>
             <form id="formPengeluaran" method="POST" action="?aksi=tambah_pengeluaran">
-                <button type="submit" name="refreshPengeluaran" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Ya, Tambahkan</button>
+                <button type="submit" name="refreshPengeluaran"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Ya, Tambahkan</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="popup-keterangan" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-lg p-8 w-[350px] border-2 border-blue-500 relative">
+            <button onclick="document.getElementById('popup-keterangan').classList.add('hidden')"
+                class="absolute top-2 right-3 text-gray-700 text-xl">&times;</button>
+            <h2 class="text-2xl font-bold text-center mb-6 text-blue-700">Tambah Keterangan</h2>
+            <form method="POST" action="">
+                <input type="hidden" name="aksi" value="tambah_keterangan">
+                <input type="hidden" name="id_pengeluaran" id="keterangan_id_pengeluaran">
+                <label class="block mb-2 font-medium text-gray-700">Keterangan</label>
+                <textarea name="keterangan" rows="3" placeholder="Contoh: Pembelian sapu untuk kebersihan" required
+                    class="w-full mb-4 border-b border-black bg-transparent focus:outline-none py-1"></textarea>
+                <button type="submit"
+                    class="w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700 transition duration-200">
+                    Simpan Keterangan
+                </button>
             </form>
         </div>
     </div>
 
     <?php if ($showSuccessPopup): ?>
-        <div id="popup-success" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-            <div class="bg-white w-full max-w-sm p-6 rounded-xl text-center border-2 border-green-600 shadow-2xl">
-                <div class="w-16 h-16 mx-auto mb-4 bg-green-100 text-green-600 flex items-center justify-center rounded-full">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <h2 class="text-xl font-bold text-green-700 mb-2">Berhasil!</h2>
-                <p class="text-gray-600 mb-4">Pengeluaran bulan ini berhasil ditambahkan.</p>
-                <button onclick="document.getElementById('popup-success').classList.add('hidden')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                    Tutup
-                </button>
+    <div id="popup-success" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div class="bg-white w-full max-w-sm p-6 rounded-xl text-center border-2 border-green-600 shadow-2xl">
+            <div class="w-16 h-16 mx-auto mb-4 bg-green-100 text-green-600 flex items-center justify-center rounded-full">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
             </div>
+            <h2 class="text-xl font-bold text-green-700 mb-2">Berhasil!</h2>
+            <p class="text-gray-600 mb-4">Pengeluaran bulan ini berhasil ditambahkan.</p>
+            <button onclick="document.getElementById('popup-success').classList.add('hidden')"
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                Tutup
+            </button>
         </div>
+    </div>
     <?php endif; ?>
 
     <script>
+        // Function to open the Keterangan popup and set the hidden input value
+        function openKeteranganPopup(idPengeluaran) {
+            document.getElementById('keterangan_id_pengeluaran').value = idPengeluaran;
+            document.getElementById('popup-keterangan').classList.remove('hidden');
+        }
+
+
         window.addEventListener('DOMContentLoaded', () => {
             const url = new URL(window.location);
             const status = url.searchParams.get('status');
 
-            // Show success popup immediately if status is 'success'
-            if (status === 'success') {
+            // Show success popup immediately if status is 'success' or 'success_keterangan'
+            if (status === 'success' || status === 'success_keterangan') {
                 const successPopup = document.getElementById('popup-success');
                 if (successPopup) {
+                    // Update success message if it's for keterangan
+                    const successMessage = successPopup.querySelector('p');
+                    if (status === 'success_keterangan') {
+                        successPopup.querySelector('h2').textContent = 'Keterangan Berhasil Ditambahkan!';
+                        successMessage.textContent = 'Keterangan untuk pengeluaran berhasil ditambahkan.';
+                    } else {
+                        successPopup.querySelector('h2').textContent = 'Berhasil!';
+                        successMessage.textContent = 'Pengeluaran bulan ini berhasil ditambahkan.';
+                    }
+
                     successPopup.classList.remove('hidden');
                 }
                 // Delay parameter removal to allow user to see the success message
@@ -219,12 +319,14 @@ $kategori = getKategoriPengeluaran($idRt); // Asumsi ini mengambil data kategori
             const allPopupWrappers = {
                 'popup-kategori': document.getElementById('popup-kategori'),
                 'popup-konfirmasi': document.getElementById('popup-konfirmasi'),
+                'popup-keterangan': document.getElementById('popup-keterangan'), // Add new popup
                 'popup-success': document.getElementById('popup-success')
             };
 
             const allPopupContents = {
                 'popup-kategori': allPopupWrappers['popup-kategori'] ? allPopupWrappers['popup-kategori'].querySelector('div') : null,
                 'popup-konfirmasi': allPopupWrappers['popup-konfirmasi'] ? allPopupWrappers['popup-konfirmasi'].querySelector('div') : null,
+                'popup-keterangan': allPopupWrappers['popup-keterangan'] ? allPopupWrappers['popup-keterangan'].querySelector('div') : null, // Add new popup
                 'popup-success': allPopupWrappers['popup-success'] ? allPopupWrappers['popup-success'].querySelector('div') : null
             };
 
@@ -271,14 +373,12 @@ $kategori = getKategoriPengeluaran($idRt); // Asumsi ini mengambil data kategori
             }
 
             // Ensure buttons that open popups also stop propagation to prevent immediate re-close
-            // Add this class to your buttons: `class="... popup-opener-button"`
-            document.querySelectorAll('.bg-green-600, .bg-red-600, .bg-blue-600').forEach(btn => { // Target all buttons that might open a popup
-                 btn.addEventListener('click', function(e) {
-                    // Only stop propagation if the button's action is to open a popup
-                    if (e.target.onclick && (e.target.onclick.toString().includes("classList.remove('hidden')"))) {
-                         e.stopPropagation();
+            document.querySelectorAll('.bg-green-600, .bg-red-600, .bg-blue-600, .text-gray-900.bg-white').forEach(btn => { // Added the new class for the link-button
+                btn.addEventListener('click', function(e) {
+                    if (e.target.onclick && (e.target.onclick.toString().includes("classList.remove('hidden')") || e.target.getAttribute('onclick') && e.target.getAttribute('onclick').includes("openKeteranganPopup"))) {
+                        e.stopPropagation();
                     }
-                 });
+                });
             });
         });
     </script>

@@ -96,9 +96,17 @@ function loginRt($username, $password)
 function getPemasukan($idRt)
 {
     global $conn;
-    $query = "SELECT pembayaran.tglPembayaran, warga.nama, pembayaran.totalBayar FROM pembayaran, warga, rt WHERE pembayaran.idWarga = warga.idWarga AND warga.idRt = rt.idRt AND rt.idRt = '$idRt' ";
+    $query = "SELECT pembayaran.tglPembayaran, warga.nama, pembayaran.totalBayar FROM pembayaran, warga, rt WHERE pembayaran.idWarga = warga.idWarga AND warga.idRt = rt.idRt AND rt.idRt = '$idRt' AND pembayaran.keterangan = 'lunas' ";
     return $conn->query($query);
 }
+
+function getPemasukanPending($idRt)
+{
+    global $conn;
+    $query = "SELECT pembayaran.idPembayaran, pembayaran.tglPembayaran, warga.nama, pembayaran.denda, pembayaran.totalBayar FROM pembayaran, warga, rt WHERE pembayaran.idWarga = warga.idWarga AND warga.idRt = rt.idRt AND rt.idRt = '$idRt' AND pembayaran.keterangan = 'pending' ";
+    return $conn->query($query);
+}
+
 
 function getPengeluaran($idRt)
 {
@@ -117,7 +125,7 @@ function getWarga($idRt)
 function getTotalPemasukan($idRt)
 {
     global $conn;
-    $query = "SELECT SUM(totalBayar) AS total FROM pembayaran, warga, rt WHERE pembayaran.idWarga = warga.idWarga AND warga.idRt= rt.idRt AND rt.idRt = '$idRt' ";
+    $query = "SELECT SUM(totalBayar) AS total FROM pembayaran, warga, rt WHERE pembayaran.idWarga = warga.idWarga AND warga.idRt= rt.idRt AND rt.idRt = '$idRt' AND pembayaran.keterangan = 'lunas' ";
     $result = $conn->query($query);
 
     if ($result && $row = $result->fetch_assoc()) {
@@ -236,6 +244,19 @@ function hapusWarga()
         }
     }
 }
+
+// File: services/ketua-rt-database/ketua-rt.php
+
+function updateKeteranganLunas($idPembayaran)
+{
+    global $conn;
+
+    $stmt = $conn->prepare("UPDATE pembayaran SET keterangan = 'lunas', tglPembayaran = NOW() WHERE idPembayaran = ?");
+    $stmt->bind_param("s", $idPembayaran);
+
+    return $stmt->execute();
+}
+
 
 function pengeluaranRt($idRt)
 {
@@ -359,6 +380,18 @@ function getPengeluaranBulanan($idRt, $month, $year)
     return $result;
 }
 
+function updateKeteranganPengeluaran($idRt, $keterangan, $idPengeluaran) {
+     global $conn; // Menggunakan variabel koneksi global
+    $sql = "UPDATE pengeluaran SET keterangan = ?  
+        WHERE idRt = ?  AND idPengeluaran = ? ";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sss", $keterangan, $idRt, $idPengeluaran);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result;
+}
+
+
 
 function loginWarga($username, $password)
 {
@@ -416,6 +449,20 @@ if (isset($_GET['aksi'])) {
 
         case "hapus_warga":
             hapusWarga();
+            break;
+
+        case "tambah_keterangan":
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $idRt = $_POST['idRt'] ?? '';
+                $keterangan = $_POST['keterangan'] ?? '';
+                $idPengeluaran = $_POST['idPengeluaran'];
+
+                if (insertKategori($idRt, $keterangan, $idPengeluaran)) {
+                    echo "<script>alert('Berhasil menambah keterangan!'); window.location.href=document.referrer;</script>";
+                } else {
+                    echo "<script>alert('Gagal menambahkan dketerangan.'); window.history.back();</script>";
+                }
+            }
             break;
 
         case "tambah_pengeluaran":

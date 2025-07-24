@@ -12,6 +12,8 @@ $total_pemasukan = getTotalPemasukan($idRt);
 $total_pengeluaran = getTotalPengeluaran($idRt);
 $sisa = $total_pemasukan - $total_pengeluaran;
 
+$pemasukan_pending = getPemasukanPending($idRt);
+
 $currentMonth = date('m');
 $currentYear = date('Y');
 
@@ -23,6 +25,19 @@ if ($sisa < 0) {
   $sisa_color_class = 'text-red-300'; // Red for negative, a lighter red for better contrast on dark blue
 }
 // If $sisa is 0 or positive, it will remain 'text-white'
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['action'] === 'terima_cash_payment') {
+    $idPembayaran = $_POST['id_pembayaran'];
+
+    if (updateKeteranganLunas($idPembayaran)) {
+        echo "<script>alert('Pembayaran cash berhasil dikonfirmasi!'); window.location.href=window.location.href;</script>";
+        exit();
+    } else {
+        echo "<script>alert('Gagal mengupdate pembayaran.'); window.history.back();</script>";
+        exit();
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -131,23 +146,39 @@ if ($sisa < 0) {
       <div class="bg-white p-6 rounded-lg shadow-md">
         <h3 class="text-xl md:text-2xl font-semibold text-blue-800 mb-4">Aktivitas Terbaru</h3>
         <div class="space-y-4 max-h-80 overflow-y-auto scrollbar-hide">
-          <div class="flex items-center justify-between pb-3 border-b border-blue-100 last:border-b-0">
-            <div>
-              <p class="text-gray-400 text-sm">20 Juli 2025</p>
-              <p class="font-medium text-gray-800">Airin membayar cash sebesar Rp. 35.000</p>
-              <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Denda: Rp 5.000</span>
-            </div>
-            <button class="px-4 py-2 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
-              Terima
-            </button>
-          </div>
+          <?php if (!empty($pemasukan_pending)): ?>
+            <?php foreach ($pemasukan_pending as $pending): ?>
+              <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="flex-grow pr-4">
+                  <p class="text-gray-400 text-sm"><?= date('d F Y', strtotime($pending['tglPembayaran'])) ?></p>
+                  <p class="font-medium text-gray-800">
+                    <?= htmlspecialchars($pending['nama']) ?> membayar cash sebesar Rp. <?= number_format($pending['totalBayar'], 0, ',', '.') ?>
+                  </p>
+                  <?php if ($pending['denda'] > 0): ?>
+                    <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Denda: Rp <?= number_format($pending['denda'], 0, ',', '.') ?></span>
+                  <?php endif; ?>
+                </div>
+                <form method="POST" class="ml-auto flex-shrink-0">
+                  <input type="hidden" name="action" value="terima_cash_payment">
+                  <input type="hidden" name="id_pembayaran" value="<?= htmlspecialchars($pending['idPembayaran']) ?>">
+                  <button type="submit" class="px-4 py-2 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+                    Terima
+                  </button>
+                </form>
+              </div>
+            <?php endforeach; ?>
+          <?php else: ?>
+            <p class="text-gray-500 text-center py-4">Tidak ada pembayaran cash yang tertunda.</p>
+          <?php endif; ?>
         </div>
         <div class="text-center mt-6">
           <button class="text-blue-600 hover:text-blue-800 font-semibold px-4 py-2 rounded-lg transition duration-300 ease-in-out">
-            Lihat Semua Pengeluaran
+            Lihat Semua Aktivitas
           </button>
         </div>
       </div>
+
+
     </main>
   </div>
 

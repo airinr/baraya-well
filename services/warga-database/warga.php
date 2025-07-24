@@ -185,7 +185,7 @@ function getKategori($idRt)
     return $kategori;
 }
 
-function bayarIuran($idWarga)
+function bayarIuranQris($idWarga)
 {
     global $conn;
 
@@ -221,18 +221,20 @@ function bayarIuran($idWarga)
 
     $idPembayaran = $newId;
     $idKodeBayar = "000";
+    $keterangan = "lunas";
 
     // Masukkan data
-    $stmt = $conn->prepare("INSERT INTO pembayaran (idPembayaran, tglJatuhTempo, tglPembayaran, jumlahIuran, denda, totalBayar, idWarga, idKodeBayar)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO pembayaran (idPembayaran, tglJatuhTempo, tglPembayaran, jumlahIuran, denda, totalBayar, keterangan, idWarga, idKodeBayar)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param(
-        "sssiiiss",
+        "sssiiisss",
         $idPembayaran,
         $tglJatuhTempo,
         $tanggalBayar,
         $jumlahIuran,
         $denda,
         $totalBayar,
+        $keterangan,
         $idWarga,
         $idKodeBayar
     );
@@ -245,6 +247,98 @@ function bayarIuran($idWarga)
         return false;
     }
 }
+
+function bayarIuranCash($idWarga)
+{
+    global $conn;
+
+    $tanggalBayar = date('Y-m-d');
+    $tglJatuhTempo = date('Y') . '-' . date('m') . '-15';
+
+    $denda = 0;
+    if (strtotime($tanggalBayar) > strtotime($tglJatuhTempo)) {
+        $denda = 5000;
+    }
+
+    $jumlahIuran = 30000;
+    $totalBayar = $jumlahIuran + $denda;
+
+    $bulanIni = date('Y-m');
+    $cek = $conn->prepare("SELECT 1 FROM pembayaran WHERE idWarga = ? AND DATE_FORMAT(tglPembayaran, '%Y-%m') = ?");
+    $cek->bind_param("ss", $idWarga, $bulanIni);
+    $cek->execute();
+    $cek->store_result();
+
+    if ($cek->num_rows > 0) {
+        return false; // Sudah membayar bulan ini
+    }
+
+    // Ambil ID terakhir
+    $result = $conn->query("SELECT idPembayaran FROM pembayaran ORDER BY idPembayaran DESC LIMIT 1");
+    if ($row = $result->fetch_assoc()) {
+        $lastId = (int)substr($row['idPembayaran'], 1); // Hilangkan 'P' dan ubah ke int
+        $newId = 'P' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
+    } else {
+        $newId = 'P001';
+    }
+
+    $idPembayaran = $newId;
+    $idKodeBayar = "000";
+    $keterangan = "pending";
+
+    // Masukkan data
+    $stmt = $conn->prepare("INSERT INTO pembayaran (idPembayaran, tglJatuhTempo, tglPembayaran, jumlahIuran, denda, totalBayar, keterangan, idWarga, idKodeBayar)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param(
+        "sssiiisss",
+        $idPembayaran,
+        $tglJatuhTempo,
+        $tanggalBayar,
+        $jumlahIuran,
+        $denda,
+        $totalBayar,
+        $keterangan,
+        $idWarga,
+        $idKodeBayar
+    );
+
+    if ($stmt->execute()) {
+        header("Location: ../../pages/warga/beranda-warga.php?status=berhasil");
+        exit();
+    } else {
+        echo "<script>alert('Gagal membayar iuran.'); window.history.back();</script>";
+        return false;
+    }
+}
+
+function getStatusPembayaran($idWarga)
+{
+    global $conn;
+
+    $query = "
+        SELECT keterangan
+        FROM pembayaran
+        WHERE keterangan = 'lunas' AND idWarga = ?
+    ";
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $idWarga);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $data = [];
+
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+
+    $stmt->close();
+    return $data;
+}
+
+
 
 function getTagihanWarga($idWarga)
 {
@@ -276,7 +370,8 @@ function getTagihanWarga($idWarga)
     ];
 }
 
-function getRiwayatPembayaran($id_warga, $limit = 5) {
+function getRiwayatPembayaran($id_warga, $limit = 5)
+{
     global $conn;
 
     $query = "SELECT * 
@@ -297,7 +392,8 @@ function getRiwayatPembayaran($id_warga, $limit = 5) {
     return $riwayat;
 }
 
-function getRTById($idRt) {
+function getRTById($idRt)
+{
     global $conn;
 
     $query = "SELECT * FROM rt WHERE idRT = ?";
@@ -306,8 +402,5 @@ function getRTById($idRt) {
     $stmt->execute();
     $result = $stmt->get_result();
 
-    return $result->fetch_assoc(); 
+    return $result->fetch_assoc();
 }
-
-
-
