@@ -54,7 +54,7 @@
     <!-- Call to Action -->
     <section class="text-center py-10">
         <h3 class="text-xl font-semibold mb-4">Bergabung dengan Kami!</h3>
-        <a href="#" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Daftar RT</a>
+        <a href="register.php" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Daftar RT</a>
     </section>
 
     <!-- Footer / Hubungi Kami -->
@@ -64,7 +64,7 @@
             <p>Kelompok RPL IF 5:</p>
             <ul class="px-6">
                 <li>1. Airin Ristiana - 10123194</li>
-                <li>2. Mutiara Annur - 10123</li>
+                <li>2. Mutiara Annur - 10123177</li>
                 <li>3. Fathya Nurulhasanah - 10123190</li>
                 <li>4. Annisa Nuraeni - 10123193</li>
                 <li>5. Rizza Alyda Yahya - 10123212</li>

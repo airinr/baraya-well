@@ -33,7 +33,7 @@
 
       <form method="POST" action="" class="space-y-6">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
           <input name="username" type="text" required class="w-full border-b border-gray-700 bg-transparent py-1" />
         </div>
 
@@ -43,7 +43,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Daftar Sebagai?</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Login Sebagai?</label>
           <select name="role" required class="w-full border-b border-gray-700 bg-transparent py-1">
             <option value="" disabled selected>Pilih peran Anda</option>
             <option value="warga">Warga</option>

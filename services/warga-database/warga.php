@@ -11,6 +11,9 @@ $db   = "baraya_well";
 // Membuat koneksi
 $conn = new mysqli($host, $user, $pass, $db);
 
+$aksi = $_GET['aksi'] ?? '';
+
+
 function ketuaRt()
 {
     global $conn;
@@ -220,14 +223,13 @@ function bayarIuranQris($idWarga)
     }
 
     $idPembayaran = $newId;
-    $idKodeBayar = "000";
     $keterangan = "lunas";
 
     // Masukkan data
-    $stmt = $conn->prepare("INSERT INTO pembayaran (idPembayaran, tglJatuhTempo, tglPembayaran, jumlahIuran, denda, totalBayar, keterangan, idWarga, idKodeBayar)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO pembayaran (idPembayaran, tglJatuhTempo, tglPembayaran, jumlahIuran, denda, totalBayar, keterangan, idWarga)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param(
-        "sssiiisss",
+        "sssiiiss",
         $idPembayaran,
         $tglJatuhTempo,
         $tanggalBayar,
@@ -236,7 +238,6 @@ function bayarIuranQris($idWarga)
         $totalBayar,
         $keterangan,
         $idWarga,
-        $idKodeBayar
     );
 
     if ($stmt->execute()) {
@@ -283,14 +284,13 @@ function bayarIuranCash($idWarga)
     }
 
     $idPembayaran = $newId;
-    $idKodeBayar = "000";
     $keterangan = "pending";
 
     // Masukkan data
-    $stmt = $conn->prepare("INSERT INTO pembayaran (idPembayaran, tglJatuhTempo, tglPembayaran, jumlahIuran, denda, totalBayar, keterangan, idWarga, idKodeBayar)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO pembayaran (idPembayaran, tglJatuhTempo, tglPembayaran, jumlahIuran, denda, totalBayar, keterangan, idWarga)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param(
-        "sssiiisss",
+        "sssiiiss",
         $idPembayaran,
         $tglJatuhTempo,
         $tanggalBayar,
@@ -299,7 +299,6 @@ function bayarIuranCash($idWarga)
         $totalBayar,
         $keterangan,
         $idWarga,
-        $idKodeBayar
     );
 
     if ($stmt->execute()) {
@@ -403,4 +402,14 @@ function getRTById($idRt)
     $result = $stmt->get_result();
 
     return $result->fetch_assoc();
+}
+
+if (isset($_GET['aksi'])) {
+    $aksi = $_GET['aksi'];
+
+    if ($aksi === 'register') {
+        registerWarga();
+    } else {
+        echo "Aksi tidak dikenali.";
+    }
 }
